@@ -1,5 +1,7 @@
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
+import { LandingPage } from './components/landing/LandingPage';
+import { LoginModal } from './components/auth/LoginModal';
 import { Navbar } from './components/common/Navbar';
 import { StudentView } from './components/student/StudentView';
 import { StaffView } from './components/staff/StaffView';
@@ -19,14 +21,25 @@ import {
 } from 'lucide-react';
 
 const AppContent = () => {
-  const { role, activeTokenModalOrder } = useApp();
+  const { isAuthenticated, role, activeTokenModalOrder } = useApp();
 
+  // If not logged in, render the animated Landing Page first!
+  if (!isAuthenticated) {
+    return (
+      <>
+        <LandingPage />
+        <LoginModal />
+      </>
+    );
+  }
+
+  // Once authenticated with College Email ID, render full platform experience
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-orange-500 selection:text-white">
-      {/* Top Navigation */}
+      {/* Top Authenticated Navigation */}
       <Navbar />
 
-      {/* Main Content Area */}
+      {/* Main Role-Specific Workspace Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         {role === 'student' && <StudentView />}
         {role === 'staff' && <StaffView />}
@@ -36,6 +49,7 @@ const AppContent = () => {
       {/* Global Interactive Overlays */}
       <DigitalTokenModal />
       <CartDrawer />
+      <LoginModal />
 
       {/* Institutional Platform Footer */}
       <footer className="mt-auto border-t border-slate-900 bg-slate-950/80 backdrop-blur text-xs text-slate-400 py-8 px-4 sm:px-6 lg:px-8">

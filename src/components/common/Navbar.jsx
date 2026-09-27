@@ -15,11 +15,17 @@ import {
   Sparkles,
   RotateCcw,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  LogOut,
+  GraduationCap,
+  ShieldCheck,
+  Home
 } from 'lucide-react';
 
 export const Navbar = () => {
   const {
+    currentUser,
+    logout,
     role,
     setRole,
     campuses,
@@ -42,6 +48,7 @@ export const Navbar = () => {
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showCampusDropdown, setShowCampusDropdown] = useState(false);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
 
   // Active uncollected tokens for student
   const activeTokens = orders.filter(
@@ -195,7 +202,7 @@ export const Navbar = () => {
           </button>
         </div>
 
-        {/* Right Controls: Notifications, Active Token Pass, Cart, Profile XP */}
+        {/* Right Controls: Notifications, Active Token Pass, Cart, User Profile & Logout */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Active Token Quick Pass Pill */}
           {activeTokens.length > 0 && (
@@ -266,7 +273,7 @@ export const Navbar = () => {
             )}
           </div>
 
-          {/* Cart Button (Always accessible) */}
+          {/* Cart Button */}
           <button
             onClick={() => setIsCartOpen(true)}
             className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xs shadow-md shadow-orange-500/20 transition-all active:scale-95"
@@ -280,30 +287,70 @@ export const Navbar = () => {
             )}
           </button>
 
-          {/* Student Gamification XP Badge */}
-          {role === 'student' && (
-            <div className="hidden md:flex items-center gap-2 pl-2 border-l border-slate-800">
-              <div className="relative">
-                <img
-                  src={userProfile.avatar}
-                  alt={userProfile.name}
-                  className="w-8 h-8 rounded-full object-cover ring-2 ring-orange-500/50"
-                />
-                <span className="absolute -bottom-1 -right-1 px-1 rounded-full bg-orange-600 text-white font-extrabold text-[9px] leading-tight">
-                  L{userProfile.level}
-                </span>
-              </div>
-              <div className="text-left">
-                <div className="text-xs font-bold text-slate-200 leading-tight flex items-center gap-1">
-                  <span>{userProfile.name.split(' ')[0]}</span>
-                  <Sparkles className="w-3 h-3 text-amber-400 inline" />
+          {/* User Profile & Sign Out Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowUserDropdown(!showUserDropdown)}
+              className="flex items-center gap-2 p-1 pl-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all"
+            >
+              <img
+                src={currentUser?.avatar || userProfile.avatar}
+                alt={currentUser?.name || userProfile.name}
+                className="w-7 h-7 rounded-full object-cover ring-1 ring-orange-500/50"
+              />
+              <div className="text-left hidden md:block pr-1">
+                <div className="text-xs font-bold text-slate-200 truncate max-w-[100px]">
+                  {(currentUser?.name || userProfile.name).split(' ')[0]}
                 </div>
-                <div className="text-[10px] text-amber-400/90 font-mono font-semibold">
-                  {userProfile.xp} XP
+                <div className="text-[9px] text-orange-400 font-mono">
+                  {currentUser?.rollNumber || userProfile.rollNumber}
                 </div>
               </div>
-            </div>
-          )}
+              <ChevronDown className="w-3 h-3 text-slate-400 hidden sm:block" />
+            </button>
+
+            {showUserDropdown && (
+              <div className="absolute right-0 mt-2 w-64 glass-panel rounded-2xl shadow-2xl border border-slate-700 p-3 z-50 animate-in fade-in zoom-in-95 duration-150">
+                <div className="pb-2.5 border-b border-slate-800 space-y-0.5">
+                  <div className="text-xs font-bold text-white">
+                    {currentUser?.name || userProfile.name}
+                  </div>
+                  <div className="text-[10px] text-orange-400 font-mono truncate">
+                    {currentUser?.email || '22spec0744@stpetershyd.com'}
+                  </div>
+                  <div className="text-[10px] text-slate-400 flex items-center gap-1 pt-1">
+                    <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                    <span>Verified SPEC ID</span>
+                  </div>
+                </div>
+
+                <div className="py-2 border-b border-slate-800 text-xs text-slate-300 space-y-1 font-medium">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Department:</span>
+                    <span>{currentUser?.department?.split(' ')[0] || 'CSE'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">XP Points:</span>
+                    <span className="font-mono text-amber-400 font-bold">{userProfile.xp} XP</span>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    onClick={() => {
+                      setShowUserDropdown(false);
+                      logout();
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 font-bold text-xs border border-rose-500/20 transition-all"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Sign Out to Landing Page</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
         </div>
       </div>
     </header>

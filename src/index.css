@@ -49,23 +49,112 @@
 
 /* Glowing text and borders */
 .glow-orange {
-  box-shadow: 0 0 25px -5px rgba(249, 115, 22, 0.4);
+  box-shadow: 0 0 30px -5px rgba(249, 115, 22, 0.45);
 }
 
 .glow-emerald {
-  box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 30px -5px rgba(16, 185, 129, 0.45);
 }
 
 .glow-blue {
-  box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 30px -5px rgba(59, 130, 246, 0.45);
 }
 
-/* Shimmer animation for live status */
+/* Rich Animations */
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(1.5deg);
+  }
+}
+
+@keyframes float-reverse {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(14px) rotate(-1.5deg);
+  }
+}
+
+@keyframes float-horizontal {
+  0%, 100% {
+    transform: translateX(0px);
+  }
+  50% {
+    transform: translateX(12px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
+    opacity: 0.9;
+  }
+  50% {
+    box-shadow: 0 0 45px rgba(249, 115, 22, 0.7);
+    opacity: 1;
+  }
+}
+
+@keyframes radar-sweep {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
 }
 
+@keyframes gradient-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.animate-float-slow {
+  animation: float-slow 5s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 6s ease-in-out infinite;
+}
+
+.animate-float-horizontal {
+  animation: float-horizontal 4s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2.5s infinite;
+}
+
+.animate-radar-sweep {
+  animation: radar-sweep 4s linear infinite;
+  transform-origin: center;
+}
+
 .animate-shimmer {
   animation: shimmer 2s infinite;
+}
+
+.animate-gradient-flow {
+  background-size: 200% 200%;
+  animation: gradient-flow 6s ease infinite;
+}
+
+.animate-shake {
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
 }

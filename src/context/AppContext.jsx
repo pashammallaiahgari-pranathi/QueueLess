@@ -7,16 +7,32 @@ import {
   INITIAL_ORDERS,
   INITIAL_USER_PROFILE,
   RECENT_FEEDBACK,
-  HOURLY_CROWD_FORECAST
+  FOOD_TIMINGS,
+  DEMO_ACCOUNTS
 } from '../data/mockData';
 
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
-  // Current Role: 'student' | 'staff' | 'admin'
+  // Authentication State
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem('queueless_auth_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const isAuthenticated = Boolean(currentUser);
+
+  // Role: 'student' | 'staff' | 'admin'
   const [role, setRole] = useState(() => {
+    if (currentUser?.role) return currentUser.role;
     return localStorage.getItem('queueless_role') || 'student';
   });
+
+  // Login Modal Control
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  // Active Food Timing filter: 'all' | 'breakfast' | 'lunch' | 'snacks'
+  const [activeFoodTiming, setActiveFoodTiming] = useState('all');
 
   // Campus & Cafeteria Selection
   const [campuses] = useState(CAMPUSES);
@@ -27,9 +43,9 @@ export const AppProvider = ({ children }) => {
   });
   const [selectedCafeteriaId, setSelectedCafeteriaId] = useState('caf-main');
 
-  // Menu items with live stock & freshness
+  // Menu items with live stock & Telugu details
   const [menuItems, setMenuItems] = useState(() => {
-    const saved = localStorage.getItem('queueless_menu');
+    const saved = localStorage.getItem('queueless_menu_v2');
     return saved ? JSON.parse(saved) : MENU_ITEMS;
   });
 
@@ -41,7 +57,7 @@ export const AppProvider = ({ children }) => {
 
   // Orders & Tokens
   const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('queueless_orders');
+    const saved = localStorage.getItem('queueless_orders_v2');
     return saved ? JSON.parse(saved) : INITIAL_ORDERS;
   });
 
@@ -57,12 +73,12 @@ export const AppProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : RECENT_FEEDBACK;
   });
 
-  // Real-time Notifications & Toasts
+  // Notifications
   const [notifications, setNotifications] = useState([
     {
       id: 'notif-welcome',
-      title: "Welcome to St. Peter's QueueLess 🚀",
-      message: 'Skip the 25-minute break line. Pre-order now to collect via Digital Token #Counter 1!',
+      title: "Namaste! Welcome to SPEC QueueLess 🚀",
+      message: 'Skip cafeteria queues! Pre-order hot Telugu tiffins, Biryani, and Irani chai.',
       type: 'info',
       time: 'Just now'
     }
@@ -84,7 +100,6 @@ export const AppProvider = ({ children }) => {
       gain.connect(ctx.destination);
       
       if (type === 'ready') {
-        // High joyful double ding for ready token
         osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
         osc.frequency.setValueAtTime(880, ctx.currentTime + 0.15); // A5
         gain.gain.setValueAtTime(0.2, ctx.currentTime);
@@ -92,7 +107,6 @@ export const AppProvider = ({ children }) => {
         osc.start();
         osc.stop(ctx.currentTime + 0.5);
       } else if (type === 'coin') {
-        // XP coin chime
         osc.frequency.setValueAtTime(987.77, ctx.currentTime); // B5
         osc.frequency.setValueAtTime(1318.51, ctx.currentTime + 0.1); // E6
         gain.gain.setValueAtTime(0.15, ctx.currentTime);
@@ -100,19 +114,24 @@ export const AppProvider = ({ children }) => {
         osc.start();
         osc.stop(ctx.currentTime + 0.4);
       } else {
-        // Soft button tap
         osc.frequency.setValueAtTime(440, ctx.currentTime);
         gain.gain.setValueAtTime(0.08, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
         osc.start();
         osc.stop(ctx.currentTime + 0.15);
       }
-    } catch (e) {
-      // AudioContext unavailable or restricted by browser gesture
-    }
+    } catch (e) {}
   };
 
-  // Sync to local storage
+  // Sync states
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem('queueless_auth_user', JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem('queueless_auth_user');
+    }
+  }, [currentUser]);
+
   useEffect(() => {
     localStorage.setItem('queueless_role', role);
   }, [role]);
@@ -122,7 +141,7 @@ export const AppProvider = ({ children }) => {
   }, [cafeterias]);
 
   useEffect(() => {
-    localStorage.setItem('queueless_menu', JSON.stringify(menuItems));
+    localStorage.setItem('queueless_menu_v2', JSON.stringify(menuItems));
   }, [menuItems]);
 
   useEffect(() => {
@@ -130,7 +149,7 @@ export const AppProvider = ({ children }) => {
   }, [cart]);
 
   useEffect(() => {
-    localStorage.setItem('queueless_orders', JSON.stringify(orders));
+    localStorage.setItem('queueless_orders_v2', JSON.stringify(orders));
   }, [orders]);
 
   useEffect(() => {
@@ -145,11 +164,71 @@ export const AppProvider = ({ children }) => {
   const triggerConfetti = () => {
     try {
       confetti({
-        particleCount: 80,
-        spread: 70,
+        particleCount: 90,
+        spread: 75,
         origin: { y: 0.6 }
       });
     } catch (e) {}
+  };
+
+  // Login with College Email Only
+  const loginWithCollegeEmail = (email, password = '', chosenRole = 'student') => {
+    const trimmedEmail = email.trim().toLowerCase();
+
+    // STRICT COLLEGE EMAIL VALIDATION
+    const isCollegeDomain = 
+      trimmedEmail.endsWith('@stpetershyd.com') || 
+      trimmedEmail.endsWith('@spec.edu.in');
+
+    if (!isCollegeDomain) {
+      playSoundEffect('tap');
+      return {
+        success: false,
+        message: 'Access Restricted! Only St. Peter\'s Engineering College official IDs (@stpetershyd.com or @spec.edu.in) are permitted to sign in.'
+      };
+    }
+
+    // Match existing demo account or construct college profile
+    const matched = DEMO_ACCOUNTS.find(a => a.email.toLowerCase() === trimmedEmail);
+
+    let newUser;
+    if (matched) {
+      newUser = { ...matched };
+    } else {
+      // Extract roll or username
+      const username = trimmedEmail.split('@')[0].toUpperCase();
+      newUser = {
+        email: trimmedEmail,
+        name: username.startsWith('2') ? `Student (${username})` : username,
+        rollNumber: username,
+        role: chosenRole,
+        department: 'Engineering (SPEC)',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'
+      };
+    }
+
+    setCurrentUser(newUser);
+    setRole(newUser.role);
+    setIsLoginModalOpen(false);
+    triggerConfetti();
+    playSoundEffect('ready');
+
+    addNotification(
+      'College ID Verified! 🎓',
+      `Welcome, ${newUser.name}. Signed in with verified St. Peter's Engineering College domain (${newUser.email}).`,
+      'success'
+    );
+
+    return { success: true, user: newUser };
+  };
+
+  const logout = () => {
+    playSoundEffect('tap');
+    setCurrentUser(null);
+    localStorage.removeItem('queueless_auth_user');
+    setIsCartOpen(false);
+    setActiveTokenModalOrder(null);
+    addNotification('Logged Out', 'Successfully signed out from QueueLess campus session.', 'info');
   };
 
   // Add Notification
@@ -213,7 +292,7 @@ export const AppProvider = ({ children }) => {
         triggerConfetti();
         addNotification(
           '🎉 LEVEL UP!',
-          `Awesome work! You reached Level ${nextLevel} (${nextLevel >= 5 ? 'Master Foodie' : 'Queue Buster Elite'}). Enjoy faster pick-up rewards!`,
+          `Awesome work! You reached Level ${nextLevel}. Enjoy VIP counter pickup rewards!`,
           'success'
         );
       } else {
@@ -234,7 +313,7 @@ export const AppProvider = ({ children }) => {
   };
 
   // Place Order & Generate Token
-  const placeOrder = ({ pickupSlot, dietaryNotes = '', paymentMode = 'UPI / Campus Card' }) => {
+  const placeOrder = ({ pickupSlot, dietaryNotes = '', paymentMode = 'SPEC Campus Smartcard' }) => {
     if (cart.length === 0) return null;
 
     const currentCafeteria = cafeterias.find(c => c.id === selectedCafeteriaId) || cafeterias[0];
@@ -247,8 +326,8 @@ export const AppProvider = ({ children }) => {
     const newOrder = {
       id: orderId,
       tokenId,
-      studentName: userProfile.name,
-      studentRoll: userProfile.rollNumber,
+      studentName: currentUser?.name || userProfile.name,
+      studentRoll: currentUser?.rollNumber || userProfile.rollNumber,
       cafeteriaId: currentCafeteria.id,
       cafeteriaName: currentCafeteria.name,
       counter: cart[0]?.item.counter || 'Counter 1',
@@ -264,15 +343,13 @@ export const AppProvider = ({ children }) => {
       paymentMode,
       orderTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       estimatedReadyTime: new Date(Date.now() + 10 * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      status: 'PLACED', // PLACED -> PREPARING -> READY_FOR_PICKUP -> COLLECTED
+      status: 'PLACED',
       tokenQrCode: `SPEC-TOKEN-${tokenNumber}-${Math.random().toString(36).substring(7).toUpperCase()}`,
       isNotified: false
     };
 
-    // Update orders
     setOrders(prev => [newOrder, ...prev]);
 
-    // Deduct stock in menu
     setMenuItems(prev =>
       prev.map(item => {
         const ordered = cart.find(c => c.item.id === item.id);
@@ -288,32 +365,28 @@ export const AppProvider = ({ children }) => {
       })
     );
 
-    // Update user profile saved stats
     setUserProfile(prev => ({
       ...prev,
       totalSavedMinutes: prev.totalSavedMinutes + 18,
       mealsPrebooked: prev.mealsPrebooked + 1
     }));
 
-    // Award +45 XP for pre-booking
     addXP(45, 'Pre-booking meals ahead of queue');
-
-    // Trigger celebration & open token modal
     triggerConfetti();
     clearCart();
     setIsCartOpen(false);
     setActiveTokenModalOrder(newOrder);
 
     addNotification(
-      `Token #${tokenId} Generated!`,
-      `Your order is placed at ${currentCafeteria.name}. You'll receive a ping when the kitchen begins preparation!`,
+      `Digital Token #${tokenId} Generated!`,
+      `Order sent to kitchen at ${currentCafeteria.name}. You'll be notified when ready for pickup!`,
       'success'
     );
 
     return newOrder;
   };
 
-  // Staff action: update order status
+  // Staff order updates
   const updateOrderStatus = (orderId, newStatus) => {
     setOrders(prev =>
       prev.map(order => {
@@ -324,14 +397,14 @@ export const AppProvider = ({ children }) => {
             triggerConfetti();
             addNotification(
               `🔔 TOKEN #${order.tokenId} IS READY!`,
-              `Head over to ${order.cafeteriaName} (${order.counter}) for instant contactless pickup!`,
+              `Head to ${order.cafeteriaName} (${order.counter}) for contactless pickup!`,
               'warning'
             );
           } else if (newStatus === 'COLLECTED') {
             playSoundEffect('tap');
             addNotification(
               `Token #${order.tokenId} Handed Over`,
-              `Meal collected by ${order.studentName}. Enjoy your fresh meal!`,
+              `Meal collected by ${order.studentName}. Baguntundi! Enjoy your meal.`,
               'info'
             );
           }
@@ -342,7 +415,7 @@ export const AppProvider = ({ children }) => {
     );
   };
 
-  // Staff scanner: verify and mark collected
+  // Staff verify & collect
   const verifyAndCollectToken = (tokenInput) => {
     const cleaned = tokenInput.trim().toUpperCase();
     const found = orders.find(
@@ -361,7 +434,7 @@ export const AppProvider = ({ children }) => {
     return { success: true, order: found, message: `Verified! Token #${found.tokenId} for ${found.studentName} marked as Collected.` };
   };
 
-  // Staff action: update stock & freshness
+  // Staff stock updater
   const updateItemStock = (itemId, stockCount, inStock, freshnessBadge) => {
     setMenuItems(prev =>
       prev.map(item => {
@@ -378,7 +451,7 @@ export const AppProvider = ({ children }) => {
     );
   };
 
-  // Staff / Admin: update cafeteria crowd metrics
+  // Staff crowd updater
   const updateCafeteriaCrowd = (cafId, currentCrowdPercentage, avgWaitTimeMinutes, announcement) => {
     setCafeterias(prev =>
       prev.map(c => {
@@ -407,11 +480,11 @@ export const AppProvider = ({ children }) => {
     );
   };
 
-  // Student feedback submission
+  // Student feedback
   const submitFeedback = ({ cafeteriaId, itemId, rating, comment, tag }) => {
     const newFb = {
       id: `fb-${Date.now()}`,
-      studentName: userProfile.name,
+      studentName: currentUser?.name || userProfile.name,
       dept: userProfile.department.split(' ')[0] || 'SPEC',
       cafeteria: cafeterias.find(c => c.id === cafeteriaId)?.name || 'Food Court',
       item: menuItems.find(m => m.id === itemId)?.name || 'Meal Item',
@@ -424,24 +497,19 @@ export const AppProvider = ({ children }) => {
     setFeedbacks(prev => [newFb, ...prev]);
     addXP(25, 'Dining experience feedback submitted');
     triggerConfetti();
-    addNotification(
-      'Thank you for your feedback! ⭐',
-      'Your input helps improve meal quality and kitchen forecasting across SPEC!',
-      'success'
-    );
   };
 
-  // Instant Rush Simulator (Demo trigger)
+  // Rush hour simulation
   const simulateRushHour = () => {
-    updateCafeteriaCrowd('caf-main', 94, 24, '⚠️ PEAK LUNCH HOUR: High congestion in Block A! Pre-orders prioritized at Counter 1.');
+    updateCafeteriaCrowd('caf-main', 94, 24, '⚠️ 1:00 PM LUNCH RUSH: Block A Biryani counter is packed! Pre-orders skip line at Counter 1.');
     addNotification(
       '⚡ 1:00 PM LUNCH RUSH DETECTED',
-      'Cafeteria crowd surged to 94%! QueueLess smart routing recommends South Indian Tiffin (4m wait) or Pre-ordering.',
+      'Biryani crowd surged to 94%! QueueLess recommends South Indian Tiffin (4m wait) or Digital Pre-order.',
       'warning'
     );
   };
 
-  // Reset to original mock data
+  // Reset
   const resetDemoData = () => {
     setCafeterias(CAFETERIAS);
     setMenuItems(MENU_ITEMS);
@@ -449,7 +517,7 @@ export const AppProvider = ({ children }) => {
     setUserProfile(INITIAL_USER_PROFILE);
     setFeedbacks(RECENT_FEEDBACK);
     setCart([]);
-    addNotification('Demo Data Reset', 'Platform restored to initial sample state.', 'info');
+    addNotification('Demo Reset', 'Data restored to authentic Telugu campus state.', 'info');
   };
 
   const selectedCafeteria = cafeterias.find(c => c.id === selectedCafeteriaId) || cafeterias[0];
@@ -457,8 +525,18 @@ export const AppProvider = ({ children }) => {
   return (
     <AppContext.Provider
       value={{
+        currentUser,
+        isAuthenticated,
         role,
         setRole,
+        isLoginModalOpen,
+        setIsLoginModalOpen,
+        loginWithCollegeEmail,
+        logout,
+        activeFoodTiming,
+        setActiveFoodTiming,
+        foodTimings: FOOD_TIMINGS,
+        demoAccounts: DEMO_ACCOUNTS,
         campuses,
         selectedCampusId,
         setSelectedCampusId,
