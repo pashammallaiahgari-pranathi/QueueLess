@@ -188,7 +188,7 @@ export const CrowdIntelligenceCard = () => {
                     : "Optimal order window! Meals take < 6 minutes to prepare."}
                 </span>
                 <p className="text-[11px] text-slate-400">
-                  Recommended pickup slot: <span className="text-orange-400 font-medium">12:35 PM - 12:45 PM</span> before 3rd Year final bell.
+                  Recommended lunch pickup window: <span className="text-orange-400 font-medium">11:30 AM - 12:45 PM</span> during campus lunch break.
                 </p>
               </div>
             </div>

@@ -39,9 +39,9 @@ export const CartDrawer = () => {
 
   const pickupSlots = [
     'Instant (Next 8-10 mins)',
-    '12:15 PM Break (1st & 2nd Year)',
-    '01:00 PM Break (3rd & Final Year)',
-    '04:15 PM Evening Break'
+    'Morning Tiffin (7:00 - 8:50 AM)',
+    'Afternoon Lunch (11:00 AM - 2:00 PM)',
+    'Evening Canteen (3:30 - 6:00 PM)'
   ];
 
   const handleCheckout = (e) => {

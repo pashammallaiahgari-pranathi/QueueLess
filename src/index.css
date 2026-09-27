@@ -7,7 +7,7 @@
     --primary: 249, 115, 22;
   }
   body {
-    @apply bg-slate-950 text-slate-100 font-sans antialiased min-h-screen selection:bg-orange-500 selection:text-white;
+    @apply bg-slate-950 text-slate-100 font-sans antialiased min-h-screen selection:bg-orange-500 selection:text-white overflow-x-hidden;
   }
 }
 
@@ -20,53 +20,62 @@
   background: rgba(15, 23, 42, 0.6);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(100, 116, 139, 0.4);
+  background: rgba(249, 115, 22, 0.4);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(249, 115, 22, 0.7);
+  background: rgba(249, 115, 22, 0.8);
 }
 
 /* Glassmorphism helpers */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.glass-panel-light {
+  background: rgba(30, 41, 59, 0.7);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.glass-panel-light {
-  background: rgba(30, 41, 59, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+.glass-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.glass-card {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+.glass-card-hover {
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-card-hover:hover {
+  transform: translateY(-5px);
+  border-color: rgba(249, 115, 22, 0.4);
+  box-shadow: 0 20px 35px -10px rgba(249, 115, 22, 0.15);
 }
 
 /* Glowing text and borders */
 .glow-orange {
-  box-shadow: 0 0 30px -5px rgba(249, 115, 22, 0.45);
+  box-shadow: 0 0 35px -5px rgba(249, 115, 22, 0.5);
 }
 
 .glow-emerald {
-  box-shadow: 0 0 30px -5px rgba(16, 185, 129, 0.45);
+  box-shadow: 0 0 35px -5px rgba(16, 185, 129, 0.5);
 }
 
-.glow-blue {
-  box-shadow: 0 0 30px -5px rgba(59, 130, 246, 0.45);
+.glow-purple {
+  box-shadow: 0 0 35px -5px rgba(168, 85, 247, 0.5);
 }
 
-/* Rich Animations */
+/* High-Energy Animations */
 @keyframes float-slow {
   0%, 100% {
     transform: translateY(0px) rotate(0deg);
   }
   50% {
-    transform: translateY(-14px) rotate(1.5deg);
+    transform: translateY(-16px) rotate(2deg);
   }
 }
 
@@ -75,7 +84,7 @@
     transform: translateY(0px) rotate(0deg);
   }
   50% {
-    transform: translateY(14px) rotate(-1.5deg);
+    transform: translateY(16px) rotate(-2deg);
   }
 }
 
@@ -84,17 +93,28 @@
     transform: translateX(0px);
   }
   50% {
-    transform: translateX(12px);
+    transform: translateX(14px);
   }
 }
 
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
-    opacity: 0.9;
+    box-shadow: 0 0 25px rgba(249, 115, 22, 0.3);
+    opacity: 0.85;
   }
   50% {
-    box-shadow: 0 0 45px rgba(249, 115, 22, 0.7);
+    box-shadow: 0 0 55px rgba(249, 115, 22, 0.75);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-glow-purple {
+  0%, 100% {
+    box-shadow: 0 0 25px rgba(168, 85, 247, 0.3);
+    opacity: 0.85;
+  }
+  50% {
+    box-shadow: 0 0 55px rgba(168, 85, 247, 0.75);
     opacity: 1;
   }
 }
@@ -119,10 +139,15 @@
   100% { background-position: 0% 50%; }
 }
 
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-6px); }
-  40%, 80% { transform: translateX(6px); }
+  20%, 60% { transform: translateX(-7px); }
+  40%, 80% { transform: translateX(7px); }
 }
 
 .animate-float-slow {
@@ -134,11 +159,15 @@
 }
 
 .animate-float-horizontal {
-  animation: float-horizontal 4s ease-in-out infinite;
+  animation: float-horizontal 4.5s ease-in-out infinite;
 }
 
 .animate-pulse-glow {
   animation: pulse-glow 2.5s infinite;
+}
+
+.animate-pulse-glow-purple {
+  animation: pulse-glow-purple 2.5s infinite;
 }
 
 .animate-radar-sweep {
@@ -152,7 +181,13 @@
 
 .animate-gradient-flow {
   background-size: 200% 200%;
-  animation: gradient-flow 6s ease infinite;
+  animation: gradient-flow 5s ease infinite;
+}
+
+.animate-marquee {
+  display: flex;
+  width: 200%;
+  animation: marquee 25s linear infinite;
 }
 
 .animate-shake {

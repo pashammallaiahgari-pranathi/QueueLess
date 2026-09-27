@@ -11,13 +11,15 @@ import {
   AlertCircle, 
   Check, 
   Leaf, 
-  Drumstick,
-  ShoppingBag,
+  Drumstick, 
+  ShoppingBag, 
   SlidersHorizontal,
   Sun,
   Sunrise,
   Coffee,
-  Utensils
+  Utensils,
+  Milk,
+  Apple
 } from 'lucide-react';
 
 export const MenuCatalog = () => {
@@ -38,8 +40,16 @@ export const MenuCatalog = () => {
   const [dietaryFilter, setDietaryFilter] = useState('all'); // 'all' | 'veg' | 'non-veg'
   const [sortBy, setSortBy] = useState('popular'); // 'popular' | 'fast' | 'price'
 
-  // Categories list
-  const categories = ['All', 'Meals & Biryani', 'South Indian', 'Quick Bites', 'Beverages'];
+  // Comprehensive categories covering all user food requirements
+  const categories = [
+    'All',
+    'South Indian',
+    'Meals & Biryani',
+    'Quick Bites',
+    'Juices & Shakes',
+    'Fruit Salads',
+    'Beverages'
+  ];
 
   // Filter items
   const filteredItems = menuItems.filter(item => {
@@ -78,21 +88,22 @@ export const MenuCatalog = () => {
 
   return (
     <div className="w-full space-y-6">
-      {/* Food Timings Filter Bar */}
-      <div className="p-3 sm:p-4 rounded-2xl glass-card border border-orange-500/20 space-y-3">
+      {/* Canteen Timings Filter Bar */}
+      <div className="p-4 sm:p-5 rounded-2xl glass-card border border-orange-500/20 space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="text-sm font-black text-white flex items-center gap-1.5">
-              <span>Campus Food Timings & Service Slots</span>
+              <span>Campus Food Timings & Shift Filters</span>
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
             </span>
           </div>
           <span className="text-[11px] text-slate-400">
-            Select a meal period to see currently prepared Telugu specials
+            Click a timing slot to filter dishes prepared in that session
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+          {/* All */}
           <button
             type="button"
             onClick={() => setActiveFoodTiming('all')}
@@ -103,31 +114,33 @@ export const MenuCatalog = () => {
             }`}
           >
             <div className="flex items-center gap-1.5 text-xs font-bold">
-              <span>🍽️ All-Day Menu</span>
+              <span>🍽️ All-Day</span>
             </div>
             <div className={`text-[10px] mt-0.5 ${activeFoodTiming === 'all' ? 'text-white/80' : 'text-slate-500'}`}>
-              Full cafeteria catalog
+              Full menu
             </div>
           </button>
 
+          {/* Morning: 7:00 - 8:50 AM */}
           <button
             type="button"
             onClick={() => setActiveFoodTiming('breakfast')}
             className={`p-2.5 rounded-xl text-left border transition-all ${
               activeFoodTiming === 'breakfast'
-                ? 'bg-orange-500 text-white font-bold border-orange-400 shadow-md shadow-orange-500/20'
+                ? 'bg-emerald-600 text-white font-bold border-emerald-400 shadow-md shadow-emerald-600/20'
                 : 'bg-slate-900/80 text-slate-300 border-slate-800 hover:bg-slate-800'
             }`}
           >
             <div className="flex items-center gap-1.5 text-xs font-bold">
               <Sunrise className="w-3.5 h-3.5 text-amber-300" />
-              <span>Udhayam Tiffins</span>
+              <span>Mng Tiffins</span>
             </div>
             <div className={`text-[10px] mt-0.5 ${activeFoodTiming === 'breakfast' ? 'text-white/80' : 'text-slate-500'}`}>
-              07:30 AM - 11:30 AM
+              7:00 – 8:50 AM
             </div>
           </button>
 
+          {/* Afternoon: 11:00 AM - 2:00 PM */}
           <button
             type="button"
             onClick={() => setActiveFoodTiming('lunch')}
@@ -139,28 +152,48 @@ export const MenuCatalog = () => {
           >
             <div className="flex items-center gap-1.5 text-xs font-bold">
               <Sun className="w-3.5 h-3.5 text-amber-400" />
-              <span>Madhyahnam Biryani</span>
+              <span>Afternoon Lunch</span>
             </div>
             <div className={`text-[10px] mt-0.5 ${activeFoodTiming === 'lunch' ? 'text-white/80' : 'text-slate-500'}`}>
-              12:00 PM - 03:00 PM
+              11:00 AM – 2:00 PM
             </div>
           </button>
 
+          {/* Evening: 3:30 - 6:00 PM */}
           <button
             type="button"
             onClick={() => setActiveFoodTiming('snacks')}
             className={`p-2.5 rounded-xl text-left border transition-all ${
               activeFoodTiming === 'snacks'
-                ? 'bg-orange-500 text-white font-bold border-orange-400 shadow-md shadow-orange-500/20'
+                ? 'bg-amber-600 text-white font-bold border-amber-400 shadow-md shadow-amber-600/20'
                 : 'bg-slate-900/80 text-slate-300 border-slate-800 hover:bg-slate-800'
             }`}
           >
             <div className="flex items-center gap-1.5 text-xs font-bold">
               <Coffee className="w-3.5 h-3.5 text-orange-300" />
-              <span>Sayantram Snacks</span>
+              <span>Evng Canteen</span>
             </div>
             <div className={`text-[10px] mt-0.5 ${activeFoodTiming === 'snacks' ? 'text-white/80' : 'text-slate-500'}`}>
-              03:30 PM - 06:30 PM
+              3:30 – 6:00 PM
+            </div>
+          </button>
+
+          {/* Juice Point: All Day */}
+          <button
+            type="button"
+            onClick={() => setActiveFoodTiming('juice_point')}
+            className={`p-2.5 rounded-xl text-left border transition-all ${
+              activeFoodTiming === 'juice_point'
+                ? 'bg-purple-600 text-white font-bold border-purple-400 shadow-md shadow-purple-600/20'
+                : 'bg-slate-900/80 text-slate-300 border-slate-800 hover:bg-slate-800'
+            }`}
+          >
+            <div className="flex items-center gap-1.5 text-xs font-bold">
+              <Milk className="w-3.5 h-3.5 text-purple-300" />
+              <span>Juice Point</span>
+            </div>
+            <div className={`text-[10px] mt-0.5 ${activeFoodTiming === 'juice_point' ? 'text-white/80' : 'text-slate-500'}`}>
+              Shakes & Fruits (All Day)
             </div>
           </button>
         </div>
@@ -171,7 +204,7 @@ export const MenuCatalog = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h2 className="text-xl font-extrabold text-white flex items-center gap-2">
-              <span>Authentic Telugu & Hyderabadi Menu</span>
+              <span>Smart Canteen Menu</span>
               <span className="text-xs px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30 font-medium">
                 Live Kitchen Sync
               </span>
@@ -186,7 +219,7 @@ export const MenuCatalog = () => {
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search biryani, idli, chai, dosa..."
+              placeholder="Search idli, biryani, shake, juice..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all"
@@ -261,11 +294,11 @@ export const MenuCatalog = () => {
 
       {/* Menu Grid */}
       {filteredItems.length === 0 ? (
-        <div className="text-center py-16 bg-slate-900/40 rounded-2xl border border-slate-800">
+        <div className="text-center py-16 bg-slate-900/40 rounded-2xl border border-slate-800 space-y-3">
           <p className="text-slate-400 text-sm">No items found matching your filters in this cafeteria.</p>
           <button
             onClick={() => { setSearchQuery(''); setSelectedCategory('All'); setDietaryFilter('all'); setActiveFoodTiming('all'); }}
-            className="mt-3 px-4 py-1.5 rounded-lg bg-slate-800 text-xs text-orange-400 font-semibold hover:bg-slate-700"
+            className="px-4 py-1.5 rounded-lg bg-slate-800 text-xs text-orange-400 font-semibold hover:bg-slate-700"
           >
             Clear Filters
           </button>
@@ -281,7 +314,7 @@ export const MenuCatalog = () => {
             return (
               <div
                 key={item.id}
-                className="group glass-card rounded-2xl overflow-hidden border border-slate-800/80 hover:border-orange-500/40 transition-all duration-300 flex flex-col justify-between hover:shadow-xl hover:shadow-orange-500/5"
+                className="group glass-card rounded-2xl overflow-hidden border border-slate-800/80 hover:border-orange-500/40 transition-all duration-300 flex flex-col justify-between glass-card-hover"
               >
                 <div>
                   {/* Image & Overlay Badges */}
@@ -315,9 +348,9 @@ export const MenuCatalog = () => {
                       )}
                     </div>
 
-                    {/* Counter location */}
-                    <div className="absolute bottom-2.5 left-2.5 text-[10px] text-slate-300 font-semibold bg-slate-900/80 px-2 py-0.5 rounded backdrop-blur">
-                      {item.counter}
+                    {/* Timing Badge on card */}
+                    <div className="absolute bottom-2.5 left-2.5 text-[10px] text-orange-300 font-semibold bg-slate-900/80 px-2 py-0.5 rounded backdrop-blur">
+                      {item.timingBadge || item.counter}
                     </div>
 
                     {/* Prep time & Calories */}
